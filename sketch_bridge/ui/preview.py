@@ -129,47 +129,36 @@ class SketchPreviewWidget(QGraphicsView):
         self._scene.addItem(item)
 
     def _draw_arc(self, arc) -> None:
-        """Draw an arc primitive."""
+        """Draw an arc primitive using polyline approximation."""
         from PySide6.QtGui import QPainterPath
 
         pen = self._get_pen(arc.construction)
 
-        # Calculate arc parameters
-        cx, cy = arc.center.x, -arc.center.y  # Y flipped
-        radius = arc.radius
-
-        # Get angles from arc
-        start_angle = math.atan2(
-            -(arc.start_point.y - arc.center.y),  # Negate for flipped Y
-            arc.start_point.x - arc.center.x,
-        )
-        end_angle = math.atan2(
-            -(arc.end_point.y - arc.center.y),  # Negate for flipped Y
-            arc.end_point.x - arc.center.x,
-        )
-
-        # Convert to degrees for Qt (Qt uses 1/16th degrees)
-        start_deg = math.degrees(start_angle)
-        end_deg = math.degrees(end_angle)
-
-        # Calculate span
-        if arc.ccw:
-            span = end_deg - start_deg
-            if span <= 0:
-                span += 360
-        else:
-            span = end_deg - start_deg
-            if span >= 0:
-                span -= 360
-
-        # Create path for arc
+        # Draw arc as polyline using the arc's actual geometry
+        # This avoids any confusion with Qt's angle conventions
         path = QPainterPath()
-        rect_x = cx - radius
-        rect_y = cy - radius
-        rect_size = radius * 2
 
-        path.arcMoveTo(rect_x, rect_y, rect_size, rect_size, start_deg)
-        path.arcTo(rect_x, rect_y, rect_size, rect_size, start_deg, span)
+        # Number of segments for smooth arc
+        num_segments = 50
+        sweep = arc.sweep_angle
+        start = arc.start_angle
+        radius = arc.radius
+        cx, cy = arc.center.x, arc.center.y
+
+        # Generate points along the arc
+        for i in range(num_segments + 1):
+            t = i / num_segments
+            angle = start + t * sweep
+            x = cx + radius * math.cos(angle)
+            y = cy + radius * math.sin(angle)
+
+            # Flip Y for screen coordinates
+            screen_y = -y
+
+            if i == 0:
+                path.moveTo(x, screen_y)
+            else:
+                path.lineTo(x, screen_y)
 
         item = QGraphicsPathItem(path)
         item.setPen(pen)

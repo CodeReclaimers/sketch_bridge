@@ -26,6 +26,7 @@ from .cad_status import CADStatusWidget
 from .export_dialog import ExportOptionsDialog
 from .preview import SketchPreviewWidget
 from .sketch_list import SketchListWidget
+from .sketch_selection_dialog import SketchSelectionDialog
 
 if TYPE_CHECKING:
     from sketch_canonical import SketchDocument
@@ -269,9 +270,23 @@ class MainWindow(QMainWindow):
                 )
                 return
 
-            # Collect all sketches
+            # If only one sketch, collect it directly
+            # If multiple, show selection dialog
+            if len(sketches) == 1:
+                sketches_to_collect = sketches
+            else:
+                dialog = SketchSelectionDialog(sketches, system_name, self)
+                if dialog.exec() != QDialog.DialogCode.Accepted:
+                    return
+                sketches_to_collect = dialog.get_selected_sketches()
+
+                if not sketches_to_collect:
+                    self._status_bar.showMessage("No sketches selected")
+                    return
+
+            # Collect selected sketches
             collected = 0
-            for sketch_info in sketches:
+            for sketch_info in sketches_to_collect:
                 sketch_name = sketch_info.get("name", "Unknown")
                 doc = self._cad_manager.export_sketch(system, sketch_name)
 
