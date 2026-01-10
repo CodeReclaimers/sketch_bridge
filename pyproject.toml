@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sketch_bridge"
+version = "0.1.0"
+description = "A tool for transferring sketches between CAD systems"
+readme = "SKETCH_TOOL.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "SketchBridge Contributors"}
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Computer Aided Design (CAD)",
+]
+dependencies = [
+    "PySide6>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "pytest",
+]
+
+[project.scripts]
+sketch-bridge = "sketch_bridge.app:main"
+
+[project.gui-scripts]
+sketch-bridge-gui = "sketch_bridge.app:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["sketch_bridge*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "C4", "SIM"]
+ignore = ["E501"]  # Line length handled separately
