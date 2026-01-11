@@ -25,8 +25,8 @@ COLOR_POINT = QColor(200, 80, 80)  # Red
 COLOR_BACKGROUND = QColor(250, 250, 250)  # Light gray
 COLOR_GRID = QColor(230, 230, 230)  # Lighter gray
 
-# Line widths
-LINE_WIDTH = 2.0
+# Line widths (in pixels when using cosmetic pen)
+LINE_WIDTH = 1.5
 POINT_RADIUS = 3.0
 
 
@@ -97,6 +97,7 @@ class SketchPreviewWidget(QGraphicsView):
         color = COLOR_CONSTRUCTION if construction else COLOR_GEOMETRY
         pen = QPen(color)
         pen.setWidthF(LINE_WIDTH)
+        pen.setCosmetic(True)  # Width is in pixels, not scene units
         if construction:
             pen.setStyle(Qt.PenStyle.DashLine)
         return pen

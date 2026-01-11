@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Any
 
@@ -65,6 +66,10 @@ class CADManager(QObject):
         # Status cache
         self._status: dict[CADSystem, dict] = {system: {} for system in CADSystem}
 
+        # Thread pool for background connection checking
+        self._executor = ThreadPoolExecutor(max_workers=4)
+        self._check_in_progress = False
+
         # Timer for periodic status checks
         self._check_timer = QTimer(self)
         self._check_timer.timeout.connect(self._check_connections)
@@ -78,35 +83,72 @@ class CADManager(QObject):
     def stop_monitoring(self) -> None:
         """Stop periodic connection monitoring."""
         self._check_timer.stop()
+        self._executor.shutdown(wait=False)
 
     def _check_connections(self) -> None:
-        """Check all CAD system connections."""
-        for system in CADSystem:
-            self._check_system(system)
+        """Check all CAD system connections in background threads."""
+        if self._check_in_progress:
+            return  # Skip if previous check is still running
 
-    def _check_system(self, system: CADSystem) -> None:
-        """Check connection to a specific CAD system."""
+        self._check_in_progress = True
+
+        # Submit all checks to thread pool
+        futures = []
+        for system in CADSystem:
+            future = self._executor.submit(self._check_system_thread, system)
+            futures.append((system, future))
+
+        # Schedule result collection on main thread
+        QTimer.singleShot(0, lambda: self._collect_results(futures))
+
+    def _check_system_thread(self, system: CADSystem) -> tuple[bool, dict]:
+        """Check connection to a CAD system (runs in background thread).
+
+        Returns:
+            Tuple of (connected, status_dict)
+        """
         client = self._clients[system]
-        was_connected = self._connected[system]
 
         try:
             # Try to connect if not already connected
             connected = client.connect(timeout=1.0) if not client.is_connected() else True
 
             if connected:
-                # Get status
                 status = client.get_status()
-                self._status[system] = status
-                self.status_updated.emit(system, status)
+                return (True, status)
+            else:
+                return (False, {})
         except Exception:
-            connected = False
-            self._status[system] = {}
+            return (False, {})
 
-        self._connected[system] = connected
+    def _collect_results(self, futures: list) -> None:
+        """Collect results from background checks (runs on main thread)."""
+        all_done = True
 
-        # Emit signal if connection status changed
-        if connected != was_connected:
-            self.connection_changed.emit(system, connected)
+        for system, future in futures:
+            if future.done():
+                try:
+                    connected, status = future.result(timeout=0)
+                    was_connected = self._connected[system]
+
+                    self._connected[system] = connected
+                    self._status[system] = status
+
+                    if connected and status:
+                        self.status_updated.emit(system, status)
+
+                    if connected != was_connected:
+                        self.connection_changed.emit(system, connected)
+                except Exception:
+                    pass
+            else:
+                all_done = False
+
+        if all_done:
+            self._check_in_progress = False
+        else:
+            # Check again in 100ms
+            QTimer.singleShot(100, lambda: self._collect_results(futures))
 
     def is_connected(self, system: CADSystem) -> bool:
         """Check if a CAD system is connected."""
