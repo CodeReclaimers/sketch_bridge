@@ -120,11 +120,7 @@ class SketchSelectionDialog(QDialog):
         const_count = sketch_info.get("constraint_count", 0)
 
         # Build display text
-        if label != name:
-            display = f"{label} ({name})"
-        else:
-            display = name
-
+        display = f"{label} ({name})" if label != name else name
         display += f"  —  {geo_count} geometries, {const_count} constraints"
 
         checkbox = QCheckBox(display)

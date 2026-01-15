@@ -89,8 +89,7 @@ def create_demo_sketch() -> SketchDocument:
 
     # =========================================================================
     # Region 1: Rectangle with constraints (left side)
-    # Demonstrates: Line, Horizontal, Vertical, Perpendicular, Parallel,
-    #               Length, Coincident
+    # Demonstrates: Line, Horizontal, Vertical, Length, Coincident
     # =========================================================================
 
     # Create a rectangle from four lines
@@ -145,18 +144,9 @@ def create_demo_sketch() -> SketchDocument:
         id="C4"
     ))
 
-    # Parallel and perpendicular (redundant with H/V but demonstrates the constraints)
-    doc.add_constraint(Parallel(id_rect_bottom, id_rect_top, id="PAR1"))
-    doc.add_constraint(Parallel(id_rect_left, id_rect_right, id="PAR2"))
-    doc.add_constraint(Perpendicular(id_rect_bottom, id_rect_right, id="PERP1"))
-
     # Dimensional constraints
     doc.add_constraint(Length(id_rect_bottom, 40.0, id="LEN1"))
     doc.add_constraint(Length(id_rect_left, 25.0, id="LEN2"))
-
-    # Equal length constraint on opposite sides
-    doc.add_constraint(Equal(id_rect_bottom, id_rect_top, id="EQ1"))
-    doc.add_constraint(Equal(id_rect_left, id_rect_right, id="EQ2"))
 
     # =========================================================================
     # Region 2: Circles and arcs (center)
@@ -366,11 +356,49 @@ def create_demo_sketch() -> SketchDocument:
     doc.add_constraint(Length(id_midpoint_line, 20.0, id="LEN3"))
 
     # =========================================================================
-    # Additional: Fixed constraint example
+    # Region 7: Parallel, Perpendicular, Equal (bottom right)
+    # Demonstrates these constraints without redundancy using diagonal lines
     # =========================================================================
 
-    # Fix the origin of the rectangle
-    # doc.add_constraint(Fixed(id_rect_bottom, id="FIX1"))
+    # Two parallel diagonal lines
+    diag_line1 = Line(
+        start=Point2D(100, -20),
+        end=Point2D(120, -35),
+    )
+    diag_line2 = Line(
+        start=Point2D(100, -30),
+        end=Point2D(120, -45),
+    )
+    id_diag1 = doc.add_primitive(diag_line1)
+    id_diag2 = doc.add_primitive(diag_line2)
+
+    # Parallel constraint (not redundant - lines are diagonal)
+    doc.add_constraint(Parallel(id_diag1, id_diag2, id="PAR1"))
+
+    # Equal length constraint (not redundant - no length constraints on these lines)
+    doc.add_constraint(Equal(id_diag1, id_diag2, id="EQ1"))
+
+    # Two perpendicular lines (forming an L shape)
+    perp_line1 = Line(
+        start=Point2D(130, -20),
+        end=Point2D(145, -35),
+    )
+    perp_line2 = Line(
+        start=Point2D(145, -35),
+        end=Point2D(130, -50),
+    )
+    id_perp1 = doc.add_primitive(perp_line1)
+    id_perp2 = doc.add_primitive(perp_line2)
+
+    # Coincident at the corner
+    doc.add_constraint(Coincident(
+        PointRef(id_perp1, PointType.END),
+        PointRef(id_perp2, PointType.START),
+        id="C6"
+    ))
+
+    # Perpendicular constraint (not redundant - lines are diagonal)
+    doc.add_constraint(Perpendicular(id_perp1, id_perp2, id="PERP1"))
 
     return doc
 
