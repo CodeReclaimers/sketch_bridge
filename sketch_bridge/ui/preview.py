@@ -77,7 +77,15 @@ class SketchPreviewWidget(QGraphicsView):
             return
 
         # Import here to avoid circular imports
-        from sketch_canonical.primitives import Arc, Circle, Line, Point, Spline
+        from sketch_canonical.primitives import (
+            Arc,
+            Circle,
+            Ellipse,
+            EllipticalArc,
+            Line,
+            Point,
+            Spline,
+        )
 
         # Draw primitives
         for prim in self._document.primitives.values():
@@ -91,6 +99,10 @@ class SketchPreviewWidget(QGraphicsView):
                 self._draw_point(prim)
             elif isinstance(prim, Spline):
                 self._draw_spline(prim)
+            elif isinstance(prim, Ellipse):
+                self._draw_ellipse(prim)
+            elif isinstance(prim, EllipticalArc):
+                self._draw_elliptical_arc(prim)
 
     def _get_pen(self, construction: bool = False) -> QPen:
         """Get a pen for drawing geometry."""
@@ -268,6 +280,64 @@ class SketchPreviewWidget(QGraphicsView):
                 d[j][1] = (1 - alpha) * d[j - 1][1] + alpha * d[j][1]
 
         return (d[k - 1][0], d[k - 1][1])
+
+    def _draw_ellipse(self, ellipse) -> None:
+        """Draw an ellipse primitive using polyline approximation."""
+        from PySide6.QtGui import QPainterPath
+
+        pen = self._get_pen(ellipse.construction)
+
+        # Draw ellipse as polyline
+        path = QPainterPath()
+        num_segments = 72  # 5-degree increments
+
+        for i in range(num_segments + 1):
+            t = 2 * math.pi * i / num_segments
+            pt = ellipse.point_at_parameter(t)
+
+            # Flip Y for screen coordinates
+            screen_y = -pt.y
+
+            if i == 0:
+                path.moveTo(pt.x, screen_y)
+            else:
+                path.lineTo(pt.x, screen_y)
+
+        item = QGraphicsPathItem(path)
+        item.setPen(pen)
+        item.setData(0, ellipse.id)
+        self._scene.addItem(item)
+
+    def _draw_elliptical_arc(self, arc) -> None:
+        """Draw an elliptical arc primitive using polyline approximation."""
+        from PySide6.QtGui import QPainterPath
+
+        pen = self._get_pen(arc.construction)
+
+        # Draw arc as polyline
+        path = QPainterPath()
+        num_segments = 50
+
+        sweep = arc.sweep_param
+        start = arc.start_param
+
+        for i in range(num_segments + 1):
+            t_frac = i / num_segments
+            t = start + t_frac * sweep
+            pt = arc.point_at_parameter(t)
+
+            # Flip Y for screen coordinates
+            screen_y = -pt.y
+
+            if i == 0:
+                path.moveTo(pt.x, screen_y)
+            else:
+                path.lineTo(pt.x, screen_y)
+
+        item = QGraphicsPathItem(path)
+        item.setPen(pen)
+        item.setData(0, arc.id)
+        self._scene.addItem(item)
 
     def fit_to_view(self) -> None:
         """Fit the sketch to the view with some padding."""

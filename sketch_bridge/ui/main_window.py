@@ -120,6 +120,13 @@ class MainWindow(QMainWindow):
         self._load_btn.clicked.connect(self._on_load_file)
         button_layout.addWidget(self._load_btn)
 
+        self._load_demo_btn = QPushButton("Load Demo")
+        self._load_demo_btn.setToolTip(
+            "Load a demo sketch that showcases all supported primitive and constraint types"
+        )
+        self._load_demo_btn.clicked.connect(self._on_load_demo)
+        button_layout.addWidget(self._load_demo_btn)
+
         self._save_btn = QPushButton("Save File...")
         self._save_btn.setEnabled(False)
         self._save_btn.clicked.connect(self._on_save_file)
@@ -222,6 +229,22 @@ class MainWindow(QMainWindow):
         self._sketch_list.select_sketch(key)
 
         self._status_bar.showMessage(f"Loaded: {path.name}")
+
+    def _on_load_demo(self) -> None:
+        """Load the demo sketch."""
+        from ..demo import create_demo_sketch
+
+        doc = create_demo_sketch()
+
+        # Generate unique key
+        self._sketch_counter += 1
+        key = f"demo_{self._sketch_counter}_{doc.name}"
+
+        self._sketches[key] = doc
+        self._sketch_list.add_sketch(key, doc, source="Demo")
+        self._sketch_list.select_sketch(key)
+
+        self._status_bar.showMessage(f"Loaded demo sketch: {doc.name}")
 
     def _on_save_file(self) -> None:
         """Handle save file button."""
