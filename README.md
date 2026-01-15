@@ -139,6 +139,60 @@ ruff check .
 ruff format .
 ```
 
+## Building Standalone Executables
+
+SketchBridge can be packaged as a standalone Windows executable using PyInstaller. This allows users to run SketchBridge without installing Python.
+
+### Prerequisites
+
+- Python 3.10 or later
+- All SketchBridge dependencies installed
+- PyInstaller (installed automatically by the build script if missing)
+
+### Building on Windows
+
+Using PowerShell:
+
+```powershell
+.\build_windows.ps1
+```
+
+Or using Command Prompt:
+
+```cmd
+build_windows.bat
+```
+
+### Build Output
+
+The build creates a folder-based distribution at:
+
+```
+dist/SketchBridge/
+├── SketchBridge.exe    # Main executable
+├── *.dll               # Required DLLs
+└── ...                 # Other dependencies
+```
+
+To distribute SketchBridge, copy the entire `dist/SketchBridge` folder to the target machine.
+
+### Build Configuration
+
+The build is configured via `sketch_bridge.spec`. Key settings:
+
+- **Hidden imports**: CAD adapter packages and PySide6 modules
+- **Excludes**: Unnecessary packages (numpy, matplotlib, etc.) to reduce size
+- **Console mode**: Disabled (windowed application)
+
+To add a custom icon, edit `sketch_bridge.spec` and set the `icon` parameter:
+
+```python
+exe = EXE(
+    ...
+    icon='assets/icon.ico',  # Windows icon file
+)
+```
+
 ## Related Projects
 
 - [canonical_sketch](https://github.com/CodeReclaimers/canonical_sketch) - The canonical sketch format library

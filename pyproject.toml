@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "sketch_bridge"
 version = "0.1.0"
 description = "A tool for transferring sketches between CAD systems"
-readme = "SKETCH_TOOL.md"
+readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "MIT"}
 authors = [
@@ -31,6 +31,9 @@ dependencies = [
 dev = [
     "ruff",
     "pytest",
+]
+build = [
+    "pyinstaller>=6.0",
 ]
 
 [project.scripts]
