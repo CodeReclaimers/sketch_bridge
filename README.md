@@ -5,6 +5,7 @@ A desktop application for transferring 2D sketches between different CAD systems
 SketchBridge provides a unified interface for collecting sketches from one CAD application and exporting them to another, using [Morphe](https://github.com/CodeReclaimers/morphe) as an intermediate representation.
 
 ![SketchBridge Screenshot](screenshot.png)
+![FreeCAD Screenshot](screenshot-freecad.png)
 
 ## Features
 
