@@ -2,7 +2,9 @@
 
 A desktop application for transferring 2D sketches between different CAD systems.
 
-SketchBridge provides a unified interface for collecting sketches from one CAD application and exporting them to another, using the [canonical sketch format](https://github.com/CodeReclaimers/canonical_sketch) as an intermediate representation.
+SketchBridge provides a unified interface for collecting sketches from one CAD application and exporting them to another, using [Morphe](https://github.com/CodeReclaimers/morphe) as an intermediate representation.
+
+![SketchBridge Screenshot](screenshot.png)
 
 ## Features
 
@@ -17,10 +19,10 @@ SketchBridge provides a unified interface for collecting sketches from one CAD a
 
 | CAD System | Port | Adapter Package |
 |------------|------|-----------------|
-| FreeCAD | 9876 | `sketch_adapter_freecad` |
-| Autodesk Inventor | 9877 | `sketch_adapter_inventor` |
-| SolidWorks | 9878 | `sketch_adapter_solidworks` |
-| Fusion 360 | 9879 | `sketch_adapter_fusion` |
+| FreeCAD | 9876 | `morphe.adapters.freecad` |
+| Autodesk Inventor | 9877 | `morphe.adapters.inventor` |
+| SolidWorks | 9878 | `morphe.adapters.solidworks` |
+| Fusion 360 | 9879 | `morphe.adapters.fusion` |
 
 ## Installation
 
@@ -40,8 +42,7 @@ pip install -e .
 
 - Python 3.10+
 - PySide6
-- `sketch_canonical` (canonical sketch format library)
-- CAD adapter packages for each system you want to connect to
+- [morphe-sketch](https://pypi.org/project/morphe-sketch/) (Morphe sketch library)
 
 ## Usage
 
@@ -66,7 +67,7 @@ Each CAD system requires its RPC server to be running. The server runs inside th
 In FreeCAD's Python console:
 
 ```python
-from sketch_adapter_freecad.server import start_server
+from morphe.adapters.freecad.server import start_server
 start_server()
 ```
 
@@ -195,11 +196,7 @@ exe = EXE(
 
 ## Related Projects
 
-- [canonical_sketch](https://github.com/CodeReclaimers/canonical_sketch) - The canonical sketch format library
-- [sketch_adapter_freecad](https://github.com/CodeReclaimers/canonical_sketch) - FreeCAD adapter
-- [sketch_adapter_inventor](https://github.com/CodeReclaimers/canonical_sketch) - Inventor adapter
-- [sketch_adapter_solidworks](https://github.com/CodeReclaimers/canonical_sketch) - SolidWorks adapter
-- [sketch_adapter_fusion](https://github.com/CodeReclaimers/canonical_sketch) - Fusion 360 adapter
+- [Morphe](https://github.com/CodeReclaimers/morphe) - CAD-agnostic 2D sketch geometry and constraint representation with adapters for FreeCAD, Fusion 360, SolidWorks, and Inventor
 
 ## License
 

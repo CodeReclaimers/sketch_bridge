@@ -29,7 +29,7 @@ from .sketch_list import SketchListWidget
 from .sketch_selection_dialog import SketchSelectionDialog
 
 if TYPE_CHECKING:
-    from sketch_canonical import SketchDocument
+    from morphe import SketchDocument
 
 
 class MainWindow(QMainWindow):
@@ -213,7 +213,7 @@ class MainWindow(QMainWindow):
 
     def _load_sketch_from_file(self, path: Path) -> None:
         """Load a sketch from a JSON file."""
-        from sketch_canonical import sketch_from_json
+        from morphe import sketch_from_json
 
         with open(path) as f:
             json_str = f.read()
@@ -269,7 +269,7 @@ class MainWindow(QMainWindow):
 
     def _save_sketch_to_file(self, doc: SketchDocument, path: Path) -> None:
         """Save a sketch to a JSON file."""
-        from sketch_canonical import sketch_to_json
+        from morphe import sketch_to_json
 
         json_str = sketch_to_json(doc)
 

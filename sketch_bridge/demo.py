@@ -2,7 +2,7 @@
 Demo sketch generator for SketchBridge.
 
 This module provides a comprehensive demo sketch that exercises all primitive
-types and constraint types supported by the canonical_sketch library.
+types and constraint types supported by the morphe library.
 
 Primitives demonstrated:
     - Line (horizontal, vertical, angled)
@@ -39,8 +39,8 @@ from __future__ import annotations
 
 import math
 
-from sketch_canonical import SketchDocument
-from sketch_canonical.constraints import (
+from morphe import SketchDocument
+from morphe.constraints import (
     Angle,
     Coincident,
     Concentric,
@@ -59,7 +59,7 @@ from sketch_canonical.constraints import (
     Tangent,
     Vertical,
 )
-from sketch_canonical.primitives import (
+from morphe.primitives import (
     Arc,
     Circle,
     Ellipse,
@@ -68,7 +68,7 @@ from sketch_canonical.primitives import (
     Point,
     Spline,
 )
-from sketch_canonical.types import Point2D, PointRef, PointType
+from morphe.types import Point2D, PointRef, PointType
 
 
 def create_demo_sketch() -> SketchDocument:

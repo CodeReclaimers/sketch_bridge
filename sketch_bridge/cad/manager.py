@@ -17,7 +17,7 @@ from .clients import (
 )
 
 if TYPE_CHECKING:
-    from sketch_canonical import SketchDocument
+    from morphe import SketchDocument
 
 
 class CADSystem(Enum):

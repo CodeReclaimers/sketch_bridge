@@ -16,7 +16,7 @@ from PySide6.QtWidgets import (
 )
 
 if TYPE_CHECKING:
-    from sketch_canonical import SketchDocument
+    from morphe import SketchDocument
 
 # Colors for rendering
 COLOR_GEOMETRY = QColor(30, 120, 200)  # Blue
@@ -77,7 +77,7 @@ class SketchPreviewWidget(QGraphicsView):
             return
 
         # Import here to avoid circular imports
-        from sketch_canonical.primitives import (
+        from morphe.primitives import (
             Arc,
             Circle,
             Ellipse,

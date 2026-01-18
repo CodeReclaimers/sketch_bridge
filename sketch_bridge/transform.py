@@ -7,8 +7,8 @@ import math
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from sketch_canonical import SketchDocument
-    from sketch_canonical.types import Point2D
+    from morphe import SketchDocument
+    from morphe.types import Point2D
 
 
 def transform_point(
@@ -32,7 +32,7 @@ def transform_point(
     Returns:
         New transformed Point2D
     """
-    from sketch_canonical.types import Point2D as Point2DClass
+    from morphe.types import Point2D as Point2DClass
 
     x, y = point.x, point.y
 
@@ -65,7 +65,7 @@ def get_sketch_centroid(doc: SketchDocument) -> tuple[float, float]:
     Returns:
         Tuple of (center_x, center_y)
     """
-    from sketch_canonical.primitives import Arc, Circle, Line, Point, Spline
+    from morphe.primitives import Arc, Circle, Line, Point, Spline
 
     points = []
 
@@ -103,7 +103,7 @@ def get_sketch_bounds(doc: SketchDocument) -> tuple[float, float, float, float]:
     Returns:
         Tuple of (min_x, min_y, max_x, max_y)
     """
-    from sketch_canonical.primitives import Arc, Circle, Line, Point, Spline
+    from morphe.primitives import Arc, Circle, Line, Point, Spline
 
     points = []
 
@@ -165,7 +165,7 @@ def transform_sketch(
     Returns:
         New transformed SketchDocument
     """
-    from sketch_canonical.primitives import Arc, Circle, Line, Point, Spline
+    from morphe.primitives import Arc, Circle, Line, Point, Spline
 
     # Deep copy the document
     new_doc = copy.deepcopy(doc)

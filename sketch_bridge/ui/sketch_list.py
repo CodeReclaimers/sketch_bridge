@@ -15,7 +15,7 @@ from PySide6.QtWidgets import (
 )
 
 if TYPE_CHECKING:
-    from sketch_canonical import SketchDocument
+    from morphe import SketchDocument
 
 
 class SketchListWidget(QWidget):

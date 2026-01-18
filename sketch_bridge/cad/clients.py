@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from sketch_canonical import SketchDocument
+    from morphe import SketchDocument
 
 
 class CADClient(ABC):
@@ -91,7 +91,7 @@ class FreeCADClientWrapper(CADClient):
     def _get_client(self):
         """Lazy import and create client."""
         if self._client is None:
-            from sketch_adapter_freecad import FreeCADClient
+            from morphe.adapters.freecad import FreeCADClient
 
             self._client = FreeCADClient(self._host, self._port)
         return self._client
@@ -148,7 +148,7 @@ class InventorClientWrapper(CADClient):
     def _get_client(self):
         """Lazy import and create client."""
         if self._client is None:
-            from sketch_adapter_inventor import InventorClient
+            from morphe.adapters.inventor import InventorClient
 
             self._client = InventorClient(self._host, self._port)
         return self._client
@@ -205,7 +205,7 @@ class SolidWorksClientWrapper(CADClient):
     def _get_client(self):
         """Lazy import and create client."""
         if self._client is None:
-            from sketch_adapter_solidworks import SolidWorksClient
+            from morphe.adapters.solidworks import SolidWorksClient
 
             self._client = SolidWorksClient(self._host, self._port)
         return self._client
@@ -262,7 +262,7 @@ class FusionClientWrapper(CADClient):
     def _get_client(self):
         """Lazy import and create client."""
         if self._client is None:
-            from sketch_adapter_fusion import FusionClient
+            from morphe.adapters.fusion import FusionClient
 
             self._client = FusionClient(self._host, self._port)
         return self._client
