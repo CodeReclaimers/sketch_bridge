@@ -33,7 +33,7 @@ pip install sketch_bridge
 Or install from source:
 
 ```bash
-git clone https://github.com/your-org/sketch_bridge.git
+git clone https://github.com/CodeReclaimers/sketch_bridge.git
 cd sketch_bridge
 pip install -e .
 ```
@@ -120,7 +120,7 @@ sketch_bridge/
 ### Setup
 
 ```bash
-git clone https://github.com/your-org/sketch_bridge.git
+git clone https://github.com/CodeReclaimers/sketch_bridge.git
 cd sketch_bridge
 pip install -e ".[dev]"
 ```
