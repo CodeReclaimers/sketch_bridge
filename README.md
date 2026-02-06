@@ -28,12 +28,6 @@ SketchBridge provides a unified interface for collecting sketches from one CAD a
 ## Installation
 
 ```bash
-pip install sketch_bridge
-```
-
-Or install from source:
-
-```bash
 git clone https://github.com/CodeReclaimers/sketch_bridge.git
 cd sketch_bridge
 pip install -e .
@@ -104,16 +98,18 @@ When exporting a sketch, you can configure:
 ```
 sketch_bridge/
 ├── app.py              # Application entry point
+├── demo.py             # Demo sketch generator
 ├── transform.py        # Sketch transformation utilities
 ├── cad/
 │   ├── manager.py      # CAD connection manager
 │   └── clients.py      # CAD client wrappers
 └── ui/
-    ├── main_window.py  # Main application window
-    ├── sketch_list.py  # Sketch list widget
-    ├── preview.py      # Sketch preview widget
-    ├── cad_status.py   # CAD connection status widget
-    └── export_dialog.py # Export options dialog
+    ├── main_window.py           # Main application window
+    ├── sketch_list.py           # Sketch list widget
+    ├── preview.py               # Sketch preview widget
+    ├── cad_status.py            # CAD connection status widget
+    ├── export_dialog.py         # Export options dialog
+    └── sketch_selection_dialog.py # Multi-sketch picker dialog
 ```
 
 ## Development
