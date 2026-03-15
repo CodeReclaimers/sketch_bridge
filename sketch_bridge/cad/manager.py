@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import logging
+import sys
 from concurrent.futures import ThreadPoolExecutor
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Any
@@ -15,6 +17,8 @@ from .clients import (
     InventorClientWrapper,
     SolidWorksClientWrapper,
 )
+
+logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from morphe import SketchDocument
@@ -49,6 +53,13 @@ class CADManager(QObject):
     connection_changed = Signal(object, bool)  # CADSystem, connected
     status_updated = Signal(object, dict)  # CADSystem, status_dict
 
+    # COM-based adapters that SketchBridge can auto-start on Windows.
+    # Maps CADSystem to (module_path, server_module_path) for lazy import.
+    _COM_ADAPTERS: dict[CADSystem, str] = {
+        CADSystem.SOLIDWORKS: "morphe.adapters.solidworks.server",
+        CADSystem.INVENTOR: "morphe.adapters.inventor.server",
+    }
+
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -66,6 +77,9 @@ class CADManager(QObject):
         # Status cache
         self._status: dict[CADSystem, dict] = {system: {} for system in CADSystem}
 
+        # Track which adapter servers we started so we can shut them down
+        self._managed_servers: dict[CADSystem, Any] = {}
+
         # Thread pool for background connection checking
         self._executor = ThreadPoolExecutor(max_workers=4)
         self._check_in_progress = False
@@ -74,6 +88,74 @@ class CADManager(QObject):
         self._check_timer = QTimer(self)
         self._check_timer.timeout.connect(self._check_connections)
         self._check_interval = 5000  # 5 seconds
+
+        # Auto-start COM adapter servers on Windows
+        if sys.platform == "win32":
+            self._start_com_servers()
+
+    def _start_com_servers(self) -> None:
+        """Auto-start COM adapter servers for SolidWorks and Inventor.
+
+        Each server binds its TCP port and runs in a background thread.
+        COM connections to the CAD applications are made lazily per-request,
+        so the servers work fine even if the CAD app isn't running yet.
+        If the port is already in use (external server), this is a no-op.
+        """
+        import importlib
+
+        for system, module_path in self._COM_ADAPTERS.items():
+            try:
+                server_mod = importlib.import_module(module_path)
+            except ImportError:
+                logger.debug(
+                    "Could not import %s adapter — skipping auto-start",
+                    CAD_NAMES[system],
+                )
+                continue
+
+            # Check that the COM library (pywin32) is actually available.
+            # Each adapter module exposes a *_AVAILABLE flag set at import time.
+            adapter_mod = importlib.import_module(
+                module_path.rsplit(".", 1)[0] + ".adapter"
+            )
+            available_flags = {
+                CADSystem.SOLIDWORKS: "SOLIDWORKS_AVAILABLE",
+                CADSystem.INVENTOR: "INVENTOR_AVAILABLE",
+            }
+            if not getattr(adapter_mod, available_flags[system], False):
+                logger.debug(
+                    "pywin32 not available for %s — skipping auto-start",
+                    CAD_NAMES[system],
+                )
+                continue
+
+            started = server_mod.start_server(blocking=False)
+            if started:
+                self._managed_servers[system] = server_mod
+                logger.info(
+                    "Auto-started %s adapter server on port %s",
+                    CAD_NAMES[system],
+                    server_mod.DEFAULT_PORT,
+                )
+            else:
+                logger.debug(
+                    "Could not auto-start %s adapter server "
+                    "(port may already be in use)",
+                    CAD_NAMES[system],
+                )
+
+    def _stop_com_servers(self) -> None:
+        """Shut down any COM adapter servers we auto-started."""
+        for system, server_mod in self._managed_servers.items():
+            try:
+                server_mod.stop_server()
+                logger.info("Stopped %s adapter server", CAD_NAMES[system])
+            except Exception:
+                logger.debug(
+                    "Error stopping %s adapter server", CAD_NAMES[system],
+                    exc_info=True,
+                )
+        self._managed_servers.clear()
 
     def start_monitoring(self) -> None:
         """Start periodic connection monitoring."""
@@ -84,6 +166,7 @@ class CADManager(QObject):
         """Stop periodic connection monitoring."""
         self._check_timer.stop()
         self._executor.shutdown(wait=False)
+        self._stop_com_servers()
 
     def _check_connections(self) -> None:
         """Check all CAD system connections in background threads."""
