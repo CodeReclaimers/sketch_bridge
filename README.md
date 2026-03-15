@@ -55,20 +55,24 @@ python -m sketch_bridge
 
 ### Setting Up CAD Connections
 
-Each CAD system requires its RPC server to be running. The server runs inside the CAD application and exposes sketch functionality over the network.
+Each CAD system communicates with SketchBridge through an RPC adapter server.
+
+#### SolidWorks and Inventor (Windows)
+
+No manual setup is needed. On Windows, SketchBridge automatically starts the adapter servers for SolidWorks and Inventor in the background. You can start the CAD application before or after SketchBridge — it will detect the running application within a few seconds.
 
 #### FreeCAD
 
-In FreeCAD's Python console:
+FreeCAD has its own Python environment, so the adapter server runs inside FreeCAD itself. In FreeCAD's Python console:
 
 ```python
 from morphe.adapters.freecad.server import start_server
 start_server()
 ```
 
-#### Other CAD Systems
+#### Fusion 360
 
-Similar setup is required for Inventor, SolidWorks, and Fusion 360. Refer to each adapter's documentation for specific instructions.
+Refer to the Morphe adapter documentation for Fusion 360 setup instructions.
 
 ### Workflow
 
